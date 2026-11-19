@@ -5,11 +5,11 @@
 		"factoryName": {
 			"value": "Datafactory-DF-devenv"
 		},
-		"LS_azure_sqlserver_password": {
-			"value": ""
-		},
 		"LS_sink_sql_adls_connectionString": {
 			"value": ""
+		},
+		"LS_KV_sqlmigration_properties_typeProperties_baseUrl": {
+			"value": "https://KV-migration-proj.vault.azure.net/"
 		},
 		"LS_azure_sqlserver_properties_typeProperties_server": {
 			"value": "localhost"

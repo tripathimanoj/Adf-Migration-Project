@@ -7,13 +7,13 @@
 			"metadata": "Data Factory name",
 			"defaultValue": "Datafactory-DF-devenv"
 		},
-		"LS_azure_sqlserver_password": {
-			"type": "secureString",
-			"metadata": "Secure string for 'password' of 'LS_azure_sqlserver'"
-		},
 		"LS_sink_sql_adls_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'LS_sink_sql_adls'"
+		},
+		"LS_KV_sqlmigration_properties_typeProperties_baseUrl": {
+			"type": "string",
+			"defaultValue": "https://KV-migration-proj.vault.azure.net/"
 		},
 		"LS_azure_sqlserver_properties_typeProperties_server": {
 			"type": "string",
@@ -57,8 +57,8 @@
 					"LS_sink_sql_adls_connectionString": {
 						"value": "[parameters('LS_sink_sql_adls_connectionString')]"
 					},
-					"LS_azure_sqlserver_password": {
-						"value": "[parameters('LS_azure_sqlserver_password')]"
+					"LS_KV_sqlmigration_properties_typeProperties_baseUrl": {
+						"value": "[parameters('LS_KV_sqlmigration_properties_typeProperties_baseUrl')]"
 					},
 					"LS_azure_sqlserver_properties_typeProperties_server": {
 						"value": "[parameters('LS_azure_sqlserver_properties_typeProperties_server')]"
