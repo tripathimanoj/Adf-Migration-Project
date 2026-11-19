@@ -7,13 +7,13 @@
 			"metadata": "Data Factory name",
 			"defaultValue": "Datafactory-DF-devenv"
 		},
-		"LS_azure_sqlserver_password": {
-			"type": "secureString",
-			"metadata": "Secure string for 'password' of 'LS_azure_sqlserver'"
-		},
 		"LS_sink_sql_adls_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'LS_sink_sql_adls'"
+		},
+		"LS_KV_sqlmigration_properties_typeProperties_baseUrl": {
+			"type": "string",
+			"defaultValue": "https://KV-migration-proj.vault.azure.net/"
 		},
 		"LS_azure_sqlserver_properties_typeProperties_server": {
 			"type": "string",
@@ -248,6 +248,20 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/LS_KV_sqlmigration')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "LS for connecting Key Vault with ADF.",
+				"annotations": [],
+				"type": "AzureKeyVault",
+				"typeProperties": {
+					"baseUrl": "[parameters('LS_KV_sqlmigration_properties_typeProperties_baseUrl')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/LS_azure_sqlserver')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
@@ -263,8 +277,12 @@
 					"authenticationType": "SQL",
 					"userName": "[parameters('LS_azure_sqlserver_properties_typeProperties_userName')]",
 					"password": {
-						"type": "SecureString",
-						"value": "[parameters('LS_azure_sqlserver_password')]"
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "LS_KV_sqlmigration",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": "Sql-Password"
 					}
 				},
 				"connectVia": {
@@ -273,7 +291,8 @@
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/integrationRuntimes/IR-sqlserver-datafactory')]"
+				"[concat(variables('factoryId'), '/integrationRuntimes/IR-sqlserver-datafactory')]",
+				"[concat(variables('factoryId'), '/linkedServices/LS_KV_sqlmigration')]"
 			]
 		},
 		{
