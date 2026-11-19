@@ -99,6 +99,10 @@
 									"typeProperties": {
 										"source": {
 											"type": "SqlServerSource",
+											"sqlReaderQuery": {
+												"value": "@concat(\n'SELECT * FROM ',\nitem().TableSchema,\n'.',\nitem().TableName,\n' WHERE ',\nitem().WatermarkColumn,\n' > ',\nitem().LastLoadValue\n)",
+												"type": "Expression"
+											},
 											"queryTimeout": "02:00:00",
 											"partitionOption": "None"
 										},
@@ -177,7 +181,7 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobStorageLocation",
-						"container": "sqlinput"
+						"container": "sqloutput"
 					},
 					"columnDelimiter": ",",
 					"escapeChar": "\\",
