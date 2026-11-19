@@ -1,0 +1,7 @@
+{
+	"name": "IR-sqlserver-datafactory",
+	"properties": {
+		"type": "SelfHosted",
+		"description": "This is the IR to setup a connection between azure and sql-server."
+	}
+}
