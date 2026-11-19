@@ -1,0 +1,11 @@
+{
+	"name": "LS_KV_sqlmigration",
+	"properties": {
+		"description": "LS for connecting Key Vault with ADF.",
+		"annotations": [],
+		"type": "AzureKeyVault",
+		"typeProperties": {
+			"baseUrl": "https://KV-migration-proj.vault.azure.net/"
+		}
+	}
+}
