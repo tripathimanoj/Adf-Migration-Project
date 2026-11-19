@@ -1,0 +1,22 @@
+{
+	"name": "LS_azure_sqlserver",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"description": "This is the link service to connect azure and sqlserver.",
+		"annotations": [],
+		"type": "SqlServer",
+		"typeProperties": {
+			"server": "localhost",
+			"database": "sqlmigration",
+			"encrypt": "optional",
+			"trustServerCertificate": false,
+			"authenticationType": "SQL",
+			"userName": "Ragnar",
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiIxMDBhM2VhMi1hZjI1LTRmNDYtYWJkZC05MzIwMzZjYTY4NmUiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+		},
+		"connectVia": {
+			"referenceName": "IR-sqlserver-datafactory",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}
