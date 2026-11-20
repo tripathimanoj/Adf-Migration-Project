@@ -186,7 +186,7 @@
 													"value": "@item().TableName",
 													"type": "Expression"
 												},
-												"type": "Single"
+												"type": "String"
 											},
 											"WatermarkColumn": {
 												"value": {
