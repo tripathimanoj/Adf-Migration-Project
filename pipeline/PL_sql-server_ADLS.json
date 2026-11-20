@@ -70,14 +70,12 @@
 									"partitionOption": "None"
 								},
 								"sink": {
-									"type": "DelimitedTextSink",
+									"type": "ParquetSink",
 									"storeSettings": {
 										"type": "AzureBlobStorageWriteSettings"
 									},
 									"formatSettings": {
-										"type": "DelimitedTextWriteSettings",
-										"quoteAllText": true,
-										"fileExtension": ".txt"
+										"type": "ParquetWriteSettings"
 									}
 								},
 								"enableStaging": false,
@@ -108,8 +106,12 @@
 							],
 							"outputs": [
 								{
-									"referenceName": "DS_sink_sql_adls",
-									"type": "DatasetReference"
+									"referenceName": "DS_sink_parquet",
+									"type": "DatasetReference",
+									"parameters": {
+										"table_name": "@item().TableName",
+										"load_date": "@formatDateTime(utcNow(),'yyyy-MM-dd')"
+									}
 								}
 							]
 						}
