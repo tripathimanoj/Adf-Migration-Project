@@ -138,15 +138,24 @@
 								"storedProcedureName": "[dbo].[UpdateWatermark]",
 								"storedProcedureParameters": {
 									"TableSchema": {
-										"value": "@item().TableSchema",
+										"value": {
+											"value": "@item().TableSchema",
+											"type": "Expression"
+										},
 										"type": "String"
 									},
 									"TableName": {
-										"value": "@item().TableName",
-										"type": "Single"
+										"value": {
+											"value": "@item().TableName",
+											"type": "Expression"
+										},
+										"type": "String"
 									},
 									"WatermarkColumn": {
-										"value": "@item().WatermarkColumn",
+										"value": {
+											"value": "@item().WatermarkColumn",
+											"type": "Expression"
+										},
 										"type": "String"
 									}
 								}
