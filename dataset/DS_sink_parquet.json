@@ -1,0 +1,31 @@
+{
+	"name": "DS_sink_parquet",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_sink_sql_adls",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"table_name": {
+				"type": "string"
+			},
+			"load_date": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"folderPath": {
+					"value": "@concat(\n'bronze/',\ndataset().table_name,\n'/',\ndataset().load_date\n)",
+					"type": "Expression"
+				},
+				"container": "sqloutput"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}
