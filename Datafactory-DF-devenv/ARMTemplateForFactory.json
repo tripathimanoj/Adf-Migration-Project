@@ -99,7 +99,10 @@
 									"typeProperties": {
 										"source": {
 											"type": "SqlServerSource",
-											"sqlReaderQuery": "@concat(\n'SELECT MAX(',\nitem().WatermarkColumn,\n') AS MaxValue FROM ',\nitem().TableSchema,\n'.',\nitem().TableName\n)",
+											"sqlReaderQuery": {
+												"value": "@concat(\n'SELECT MAX(',\nitem().WatermarkColumn,\n') AS MaxValue FROM ',\nitem().TableSchema,\n'.',\nitem().TableName\n)",
+												"type": "Expression"
+											},
 											"queryTimeout": "02:00:00",
 											"partitionOption": "None"
 										},
