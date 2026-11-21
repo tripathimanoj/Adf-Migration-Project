@@ -164,6 +164,54 @@
 								"referenceName": "LS_azure_sqlserver",
 								"type": "LinkedServiceReference"
 							}
+						},
+						{
+							"name": "Lookup_MaxValue",
+							"type": "Lookup",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "SqlServerSource",
+									"sqlReaderQuery": "@concat(\n'SELECT MAX(',\nitem().WatermarkColumn,\n') AS MaxValue FROM ',\nitem().TableSchema,\n'.',\nitem().TableName\n)",
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"dataset": {
+									"referenceName": "DS_source_sql",
+									"type": "DatasetReference",
+									"parameters": {
+										"schema_name": "@item().TableSchema",
+										"table_name": "@item().TableName"
+									}
+								}
+							}
+						},
+						{
+							"name": "If Condition1",
+							"type": "IfCondition",
+							"dependsOn": [
+								{
+									"activity": "Lookup_MaxValue",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"expression": {
+									"value": "@greater(\n    int(activity('Lookup_MaxValue').output.firstRow.MaxValue),\n    int(item().LastLoadValue)\n)",
+									"type": "Expression"
+								}
+							}
 						}
 					]
 				}
