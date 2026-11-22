@@ -62,10 +62,22 @@
 								},
 								"waitOnCompletion": true,
 								"parameters": {
-									"TableSchema": "@item().TableSchema",
-									"TableName": "@item().TableName",
-									"WatermarkColumn": "@item().WatermarkColumn",
-									"LastLoadValue": "@string(item().LastLoadValue)"
+									"TableSchema": {
+										"value": "@item().TableSchema",
+										"type": "Expression"
+									},
+									"TableName": {
+										"value": "@item().TableName",
+										"type": "Expression"
+									},
+									"WatermarkColumn": {
+										"value": "@item().WatermarkColumn",
+										"type": "Expression"
+									},
+									"LastLoadValue": {
+										"value": "@string(item().LastLoadValue)",
+										"type": "Expression"
+									}
 								}
 							}
 						}
