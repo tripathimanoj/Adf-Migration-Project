@@ -1,9 +1,9 @@
 {
-	"name": "PL_sql-server_ADLS",
+	"name": "PL_Child_Incremental",
 	"properties": {
 		"activities": [
 			{
-				"name": "sql-server-lookup",
+				"name": "Lookup_MaxValue",
 				"type": "Lookup",
 				"dependsOn": [],
 				"policy": {
@@ -17,23 +17,35 @@
 				"typeProperties": {
 					"source": {
 						"type": "SqlServerSource",
-						"sqlReaderQuery": "SELECT\n    TableSchema,\n    TableName,\n    WatermarkColumn,\n    LastLoadValue\nFROM dbo.ADF_Watermark_Table",
+						"sqlReaderQuery": {
+							"value": "@concat(\n    'SELECT MAX(',\n    pipeline().parameters.WatermarkColumn,\n    ') AS MaxValue FROM ',\n    pipeline().parameters.TableSchema,\n    '.',\n    pipeline().parameters.TableName\n)",
+							"type": "Expression"
+						},
 						"queryTimeout": "02:00:00",
 						"partitionOption": "None"
 					},
 					"dataset": {
-						"referenceName": "DS_source_sql_server",
-						"type": "DatasetReference"
-					},
-					"firstRowOnly": false
+						"referenceName": "DS_source_sql",
+						"type": "DatasetReference",
+						"parameters": {
+							"schema_name": {
+								"value": "@pipeline().parameters.TableSchema",
+								"type": "Expression"
+							},
+							"table_name": {
+								"value": "@pipeline().parameters.TableName",
+								"type": "Expression"
+							}
+						}
+					}
 				}
 			},
 			{
-				"name": "ForEach-on-lookup",
-				"type": "ForEach",
+				"name": "If Condition1",
+				"type": "IfCondition",
 				"dependsOn": [
 					{
-						"activity": "sql-server-lookup",
+						"activity": "Lookup_MaxValue",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -41,14 +53,13 @@
 				],
 				"userProperties": [],
 				"typeProperties": {
-					"items": {
-						"value": "@activity('sql-server-lookup').output.value",
+					"expression": {
+						"value": "@greater(\n    int(activity('Lookup_MaxValue').output.firstRow.MaxValue),\n    int(pipeline().parameters.LastLoadValue)\n)",
 						"type": "Expression"
 					},
-					"isSequential": true,
-					"activities": [
+					"ifTrueActivities": [
 						{
-							"name": "Copy-data-foreach-adls",
+							"name": "Copy-data-foreach-adls_copy1",
 							"type": "Copy",
 							"dependsOn": [],
 							"policy": {
@@ -63,7 +74,7 @@
 								"source": {
 									"type": "SqlServerSource",
 									"sqlReaderQuery": {
-										"value": "@concat(\n'SELECT * FROM ',\nitem().TableSchema,\n'.',\nitem().TableName,\n' WHERE ',\nitem().WatermarkColumn,\n' > ',\nitem().LastLoadValue\n)",
+										"value": "@concat(\n    'SELECT * FROM ',\n    pipeline().parameters.TableSchema,\n    '.',\n    pipeline().parameters.TableName,\n    ' WHERE ',\n    pipeline().parameters.WatermarkColumn,\n    ' > ',\n    pipeline().parameters.LastLoadValue,\n    ' AND ',\n    pipeline().parameters.WatermarkColumn,\n    ' <= ',\n    activity('Lookup_MaxValue').output.firstRow.MaxValue\n)",
 										"type": "Expression"
 									},
 									"queryTimeout": "02:00:00",
@@ -94,11 +105,11 @@
 									"type": "DatasetReference",
 									"parameters": {
 										"schema_name": {
-											"value": "@item().TableSchema",
+											"value": "@pipeline().parameters.TableSchema",
 											"type": "Expression"
 										},
 										"table_name": {
-											"value": "@item().TableName",
+											"value": "@pipeline().parameters.TableName",
 											"type": "Expression"
 										}
 									}
@@ -109,68 +120,61 @@
 									"referenceName": "DS_sink_parquet",
 									"type": "DatasetReference",
 									"parameters": {
-										"table_name": "@item().TableName",
+										"table_name": {
+											"value": "@pipeline().parameters.TableName",
+											"type": "Expression"
+										},
 										"load_date": "@formatDateTime(utcNow(),'yyyy-MM-dd')"
 									}
 								}
 							]
 						},
 						{
-							"name": "SP_UpdateWatermark",
-							"type": "SqlServerStoredProcedure",
+							"name": "Execute_UpdateWatermark",
+							"type": "ExecutePipeline",
 							"dependsOn": [
 								{
-									"activity": "Copy-data-foreach-adls",
+									"activity": "Copy-data-foreach-adls_copy1",
 									"dependencyConditions": [
 										"Succeeded"
 									]
 								}
 							],
 							"policy": {
-								"timeout": "0.12:00:00",
-								"retry": 0,
-								"retryIntervalInSeconds": 30,
-								"secureOutput": false,
 								"secureInput": false
 							},
 							"userProperties": [],
 							"typeProperties": {
-								"storedProcedureName": "[dbo].[UpdateWatermark]",
-								"storedProcedureParameters": {
-									"TableSchema": {
-										"value": {
-											"value": "@item().TableSchema",
-											"type": "Expression"
-										},
-										"type": "String"
-									},
-									"TableName": {
-										"value": {
-											"value": "@item().TableName",
-											"type": "Expression"
-										},
-										"type": "String"
-									},
-									"WatermarkColumn": {
-										"value": {
-											"value": "@item().WatermarkColumn",
-											"type": "Expression"
-										},
-										"type": "String"
-									}
+								"pipeline": {
+									"referenceName": "PL_Child_UpdateWatermark",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"TableSchema": "@pipeline().parameters.TableSchema",
+									"TableName": "@pipeline().parameters.TableName",
+									"WatermarkColumn": "@pipeline().parameters.WatermarkColumn"
 								}
-							},
-							"linkedServiceName": {
-								"referenceName": "LS_azure_sqlserver",
-								"type": "LinkedServiceReference"
 							}
 						}
 					]
 				}
 			}
 		],
-		"annotations": [],
-		"lastPublishTime": "2026-11-19T10:41:19Z"
-	},
-	"type": "Microsoft.DataFactory/factories/pipelines"
+		"parameters": {
+			"TableSchema": {
+				"type": "string"
+			},
+			"TableName": {
+				"type": "string"
+			},
+			"WatermarkColumn": {
+				"type": "string"
+			},
+			"LastLoadValue": {
+				"type": "string"
+			}
+		},
+		"annotations": []
+	}
 }
