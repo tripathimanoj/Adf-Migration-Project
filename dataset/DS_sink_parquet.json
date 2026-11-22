@@ -19,7 +19,7 @@
 			"location": {
 				"type": "AzureBlobStorageLocation",
 				"folderPath": {
-					"value": "@concat(\n'bronze/',\ndataset().table_name,\n'/',\ndataset().load_date\n)",
+					"value": "@concat(\n    'bronze/',\n    dataset().table_name,\n    '/',\n    formatDateTime(dataset().load_date, 'yyyy'),\n    '/',\n    formatDateTime(dataset().load_date, 'MM'),\n    '/',\n    formatDateTime(dataset().load_date, 'dd')\n)",
 					"type": "Expression"
 				},
 				"container": "sqloutput"
